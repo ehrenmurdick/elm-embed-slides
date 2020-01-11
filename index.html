@@ -179,36 +179,37 @@ update msg model =
         Greet s -&gt;
             { model | greeting = s }
         IncMsg m -&gt;
-            { model | inc = Inc.update m model.inc }
-        </code></pre>
+            { model | inc = Inc.update m model.inc }</code></pre>
       </section>
 
       <section>
         <h4>update cont.</h4>
         <pre><code class="hljs elm">-- in Increment
-
 update : Msg -&gt; Model -&gt; Model
 update msg model =
     case msg of
         Increment -&gt;
             { model | num = model.num + 1 }
         Decrement -&gt;
-            { model | num = model.num - 1 }
-        </code></pre>
+            { model | num = model.num - 1 }</code></pre>
       </section>
     </section>
 
 
 
-      <section>
-        <h4>one final thought</h4>
-        <small>you can embed multiple copies</small>
-        <pre><code class="hljs elm">type alias Model =
+    <section>
+      <h4>one final thought</h4>
+      <small>you can embed multiple copies</small>
+      <pre><code class="hljs elm">type alias Model =
     { greeting : String
     , incleft : Increment.Model
     , incright : Increment.Model
     }</code></pre>
-      </section>
+    </section>
+
+    <section>
+      <p>github.com/ehrenmurdick/elm-embed-slides</p>
+    </section>
 
 
   </div>
