@@ -37,60 +37,178 @@
 
 
     <section>
+      <h3>our parent app</h3>
       <section>
-
-        <pre><code class="hljs elm">
-type Msg
-    = Increment
-    | Decrement
-
-type alias Model =
-    { number : Int }
+        <pre><code class="hljs elm">type alias Model =
+    { greeting : String }
 
 init : Model
 init =
-    { number = 0 }
+    { greeting = "" }
 
-</code></pre>
-      </section>
+type Msg
+    = Greet String
 
-
-      <section>
-        <pre><code class="hljs elm">
-update : Msg -> Model -> Model
+update : Msg -&gt; Model -&gt; Model
 update msg model =
     case msg of
-        Increment ->
-            { model | number = model.number + 1 }
-
-        Decrement ->
-            { model | number = model.number - 1 }
-</code></pre>
+        Greet s -&gt;
+            { model | greeting = s }
+        </code></pre>
       </section>
 
       <section>
-        <pre><code class="hljs elm">
-view : Model -> Html Msg
+        <pre><code class="hljs elm">view : Model -&gt; Html Msg
 view model =
     div []
-        [ button [ onClick Increment ] [ text "+" ]
-        , text (String.fromInt model.number)
-        , button [ onClick Decrement ] [ text "-" ]
+        [ button [ onClick (Greet "hi") ] [ text "hi" ]
+        , button [ onClick (Greet "hello") ] [ text "hello" ]
+        , text model.greeting
         ]
 </code></pre>
       </section>
 
 
+    </section>
+
+    <section>
+      <h3>embedding...</h3>
       <section>
-        <pre><code class="hljs elm">
-</code></pre>
+        <h4>the model</h4>
+        <pre><code class="hljs elm">type alias Model =
+    { greeting : String, inc: Inc.Model }
+
+-- in module Increment
+type alias Model =
+    { num : Int }
+        </code></pre>
       </section>
 
+      <section>
+        <h4>init</h4>
+        <pre><code class="hljs elm">init : Model
+init =
+    { greeting = "", inc = Inc.init }
+
+-- in module Inc
+init : Model
+init =
+    { num = 0 }
+
+-- equivalent to
+init = { greeting = "", inc = { num = 0 } }
+        </code></pre>
+      </section>
+
+      <section>
+        <h4>view</h4>
+        <pre><code class="hljs elm">
+-- Parent
+view : Model -&gt; Html Msg
+view model =
+    div []
+        [ button [ onClick (Greet "hi") ] [ text "hi" ] ]
+
+-- Increment
+view : Model -&gt; Html Msg
+view model =
+    div []
+        [ button [ onClick Decrement ] [ text "-" ] ]
+        </code></pre>
+      </section>
+
+      <section>
+        <h4>view cont.</h4>
+        <pre><code class="hljs elm">
+-- Parent
+view : Main.Model -&gt; Html Main.Msg
+
+-- Increment
+view : Increment.Model -&gt; Html Increment.Msg
+        </code></pre>
+        type mismatch!
+      </section>
+
+      <section>
+        <h4>view cont.</h4>
+        <small>convert</small>
+        <pre><code class="hljs elm">Html Increment.Msg
+-- to
+Html Main.Msg</code></pre>
+        <small class="fragment">what about</small>
+        <pre class="fragment"><code class="hljs elm">Array Int
+-- to
+Array String</code></pre>
+      </section>
+
+      <section>
+        <h4>view cont.</h4>
+        <small>just use map!</small>
+        <pre><code class="hljs elm">f = String.fromInt : Int -&gt; String
+is = [1, 2, 3, 4] : Array Int
+os = Array.map f is
+os = ["1", "2", "3", "4"] : Array String</code></pre>
+      </section>
+
+      <section>
+        <h4>view cont.</h4>
+        <small>need an f</small>
+        <pre><code class="hljs elm">f : Increment.Msg -&gt; Main.Msg</code></pre>
+        <pre class="fragment"><code class="hljs elm">type Msg
+    = Greet String
+    | IncMsg Inc.Msg</code></pre>
+        <pre class="fragment"><code class="hljs elm">IncMsg : Inc.Msg -&gt; Main.Msg</code></pre>
+      </section>
+
+      <section>
+        <h4>view</h4>
+        <pre><code class="hljs elm">view model =
+    div []
+        [ button [ onClick (Greet "hi") ] [ text "hi" ]
+        , button [ onClick (Greet "hello") ] [ text "hello" ]
+        , text model.greeting
+        , Html.map IncMsg (Inc.view model.inc)
+        ]</code></pre>
+      </section>
+
+      <section>
+        <h4>update</h4>
+        <pre><code class="hljs elm">update : Msg -&gt; Model -&gt; Model
+update msg model =
+    case msg of
+        Greet s -&gt;
+            { model | greeting = s }
+        IncMsg m -&gt;
+            { model | inc = Inc.update m model.inc }
+        </code></pre>
+      </section>
+
+      <section>
+        <h4>update cont.</h4>
+        <pre><code class="hljs elm">-- in Increment
+
+update : Msg -&gt; Model -&gt; Model
+update msg model =
+    case msg of
+        Increment -&gt;
+            { model | num = model.num + 1 }
+        Decrement -&gt;
+            { model | num = model.num - 1 }
+        </code></pre>
+      </section>
     </section>
 
 
 
-
+      <section>
+        <h4>one final thought</h4>
+        <small>you can embed multiple copies</small>
+        <pre><code class="hljs elm">type alias Model =
+    { greeting : String
+    , incleft : Increment.Model
+    , incright : Increment.Model
+    }</code></pre>
+      </section>
 
 
   </div>
